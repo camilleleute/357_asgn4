@@ -17,12 +17,10 @@ void rehash(Dict *);
 static unsigned long int dcthash(char *key) {
     	unsigned long int code = 0, i;
 
-	if (strlen(key) == 1) {
-		code = key;
-	} else {
-		code = ASCII + (++j);
-	}
-    
+    	for (i = 0; i < 8 && key[i] != '\0'; i++) {
+        	code = key[i] + 31 * code;
+    	}
+
    	return code;
 }
 
