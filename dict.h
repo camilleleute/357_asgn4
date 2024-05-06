@@ -24,4 +24,5 @@ void *dctget(Dict *, char *);
 void dctinsert(Dict *, char *, void *);
 void *dctremove(Dict *, char *);
 char **dctkeys(Dict *);
-
+void writecodes(int short[], FILE *);
+void encode(FILE *, FILE *);

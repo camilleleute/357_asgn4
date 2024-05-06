@@ -1,10 +1,9 @@
 #include <stdio.h>
 #include <stdlib.h>
-#include "dict.h"
 #include <string.h>
 #include <unistd.h>
 #include <fcntl.h>
-
+#include "dict.h"
 
 int main(int argc, char* argv[]) {
 	FILE *in, *out;
@@ -12,7 +11,7 @@ int main(int argc, char* argv[]) {
 		fprintf(stderr, "usage: ./lzw (-c | -x) SOURCE DESTINATION\n");
 		exit(EXIT_FAILURE);
 	}
-	iif (in = fopen(argv[2], "r") == NULL){
+	if ((in = fopen(argv[2], "r")) == NULL){
 		printf("in: %s; out: %s\n", argv[2], argv[3]);
 		fprintf(stderr,"./lzw: No such file or directory\n");
 		exit(EXIT_FAILURE);
@@ -27,8 +26,9 @@ int main(int argc, char* argv[]) {
 	if (strcmp(argv[1], "-x") == 0) {
 		in = fopen(argv[2], "rb");
                 out = fopen(argv[3], "w");
-                decode(in, out);
+                //decode(in, out);
         }
-
+	fclose(in);
+	fclose(out);
 	return EXIT_SUCCESS;
 }
