@@ -20,7 +20,6 @@ static unsigned long int dcthash(char *key) {
     	for (i = 0; i < 8 && key[i] != '\0'; i++) {
         	code = key[i] + 31 * code;
     	}
-
    	return code;
 }
 
@@ -30,7 +29,7 @@ static unsigned long int dcthash(char *key) {
 Dict *dctcreate() {
 	Dict *dict; 
 	dict = (Dict *)malloc(sizeof(Dict));
-	dict->cap = 0xFFF;
+	dict->cap = 30;
         dict->size = 0;
 	if (dict == NULL) {
 		free(dict);

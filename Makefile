@@ -1,10 +1,10 @@
 all: code 
 
 code: lzw.o encode.o dict.o
-	gcc -o lzw lzw.o encode.o dict.o 
+	gcc -o lzw -g lzw.o encode.o dict.o 
 
 lzw.o: lzw.c
-	gcc -Wall -Wextra -std=gnu11 -pedantic -c lzw.c 
+	gcc -Wall -Wextra -std=gnu11 -pedantic -c -g lzw.c 
 
 encode.o: encode.c
 	gcc -Wall -Wextra -std=gnu11 -pedantic -c encode.c
