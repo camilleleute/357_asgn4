@@ -15,20 +15,14 @@ void encode(FILE *input, FILE *output) {
 	int j = 1, k=0, i = 0;
 	void *prevval, *val;
 	Dict *dct = dctcreate();
+	insertAscii(dct);
 	substr[0] = '\0';
 	while ((c = fgetc(input)) != EOF) {
 		printf("new char ---------------------------------\n");
-		void *num;
-		num =  dctget(dct, &c);
-		if (num == NULL) {
-			num = (void *)(long)c;
-			dctinsert(dct, &c, (void*)(long)num);
-			printf("inserted char %c with val %p\n", c, num);
-		}
 		int length = strlen(substr);
+		strcpy(prevsubstr, substr);
 		substr[length] = c;
 		substr[length+1] = '\0';
-
 		printf("substr is: %s\n", substr);
 		val = dctget(dct, substr);
 		printf("Value of substr before if: %p\n", val);
@@ -39,21 +33,9 @@ void encode(FILE *input, FILE *output) {
 			printf("inserted %s with val %p\n", substr, val);
 			printf("for loop length: %d\n", length);
 			printf("prev substr before for loop: %s\n", prevsubstr);
-			for (i = 0; i < length; i++) {
-				printf("char added to prevsubstr: %c\n", substr[i]);
-				prevsubstr[i] = substr[i];
-				
-			}
-			for (i = length; i < 4096; i++) {
-				prevsubstr[i] = '\0';
-			}
-
-
-			if (strlen(prevsubstr) == 1) {
-				prevval = (void *)(short)(prevsubstr[0]);
-			} else {
-				prevval = dctget(dct, prevsubstr);
-			}
+					
+			prevval = dctget(dct, prevsubstr);
+			
 			printf("prevsubstr is in if: %s and value is: %p\n", prevsubstr, prevval);
 			codes[k++%2] = (short)prevval;
 			if (k%2 == 0) {
@@ -63,22 +45,36 @@ void encode(FILE *input, FILE *output) {
 			}
 			substr[0] = c;
 			substr[1] = '\0';
+			printf("substr is: %s\n", substr);
 		}
 	}
-	printf("out of while loop \n");
-	printf("code at codes[1]: %d\n", codes[1]);	
-	if (codes[0] != -1) {
-		codes[1] =0x00A;
-		writecodes(codes, output);
-	} else {
-		printf("hi\n");
-		unsigned char byte = 0x00;
-		unsigned char byteB = 0xA0;
-		fwrite(&byte, sizeof(unsigned char), 1, output);
+	printf("exited while loop\n");
+	printf("in codes[0]: %d; in codes[1]: %d\n", codes[0], codes[1]);
+	printf("substr: %s\n", substr);
+	val = dctget(dct,substr);
+        
+        codes[k++%2] = (short)val;
+	 printf("in codes[0]: %x; in codes[1]: %d\n", codes[0], codes[1]);
+	if (codes[1] == -1) {
+		unsigned char byteA, byteB;
+		byteA = (codes[0] >> 4) & 0xFF;
+		byteB = (codes[0] << 4) & 0xFF;
+		fwrite(&byteA, sizeof(unsigned char), 1, output);
 		fwrite(&byteB, sizeof(unsigned char), 1, output);
+	} else {
+		writecodes(codes, output);
 	}
 	dctdestroy(dct);
 	return;
+}
+
+void insertAscii(Dict *dict) {
+    	int i;
+	for (i = 0; i < 128; i++) {
+   		char key[2];
+		sprintf(key, "%c", i); 
+		dctinsert(dict, key, (void*)(long)i);
+        }
 }
 
 void writecodes(int short codes[], FILE *output){

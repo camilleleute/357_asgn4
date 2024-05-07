@@ -19,6 +19,7 @@ typedef struct Dict {
 } Dict;
 
 Dict *dctcreate();
+void insertAscii(Dict *);
 void dctdestroy(Dict *);
 void *dctget(Dict *, char *);
 void dctinsert(Dict *, char *, void *);
