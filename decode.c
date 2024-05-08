@@ -3,15 +3,16 @@
 #include <string.h>
 #include <unistd.h>
 #include <fcntl.h>
-#include "dict.h"
+#include "revdict.h"
 #define ASCIIMAX 0x7F 
 
 
 void decode(FILE *input, FILE* output) {
 	int i, j;
 	size_t elements_read;
-	Dict *dct = dctcreate();
+	Dict *dct = revdctcreate();
 	insertAsciiRev(dct);
+	void *ptr;
 	char codesubstr[4096], prevsubstr[4096];
 	unsigned char bytes[3] = {-1};	
 	short int codes[2];
@@ -19,7 +20,8 @@ void decode(FILE *input, FILE* output) {
 	while ((elements_read = fread(bytes ,1, 3, input)) == 3) {
 		bitUnpacking(bytes, codes);
 		for (i = 0; i < 2; i++) {
-			sprintf(codesubstr, "%d",  dctget(dct, codes[i]));
+			ptr = revdctget(dct, codes[i]);
+			strcpy(codesubstr, (char *)ptr);
 			//strcpy(codesubstr, dctget(dct, codes[i]));
 			printf("code is: %x; associated string is: %s\n", codes[i], codesubstr);	
 			if (codesubstr != NULL) {
@@ -29,7 +31,7 @@ void decode(FILE *input, FILE* output) {
 				}
 				if (prevsubstr != NULL) {
 					strcat(prevsubstr, codesubstr[0]);
-					dctinsert(dct, codes[i], (void *)(long)prevsubstr);
+					revdctinsert(dct, codes[i], (void *)prevsubstr);
 					strcpy(prevsubstr, codesubstr);  
 				}
 			} else {
@@ -37,7 +39,7 @@ void decode(FILE *input, FILE* output) {
 				for (j = 0; prevsubstr[j] != '\0'; j++) {
                                 	fputc(prevsubstr[j], output);
                                 }
-				dctinsert(dct, codes[i], (void*)(long)prevsubstr);
+				revdctinsert(dct, codes[i], (void*)prevsubstr);
 				
 			}
 			
@@ -48,7 +50,8 @@ void decode(FILE *input, FILE* output) {
 	if (elements_read == 2) {
 		short int singlecode;
 		singlecode = ((codes[0] << 4) | (codes[1] >> 4)) & 0xFFF;		
-		strcpy(codesubstr, dctget(dct, singlecode));
+		ptr = revdctget(dct, singlecode);
+		strcpy(codesubstr, (char *)ptr);
 		if (codesubstr == NULL) {
 			strcat(prevsubstr, prevsubstr[0]); //i think this is wrong
                         strcpy(codesubstr, prevsubstr);
@@ -76,6 +79,6 @@ void insertAsciiRev(Dict *dct) {
 	char c;
     	for (asciiCode = 0; asciiCode <= 127; asciiCode++) {
 		char c = (char)asciiCode;
-        	dctinsert(dct, (char *)&asciiCode, (void*)(long)asciiCode);
+        	revdctinsert(dct, asciiCode, (void*)asciiCode);
     	}
 }

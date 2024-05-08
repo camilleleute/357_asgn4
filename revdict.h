@@ -1,11 +1,6 @@
-/* Declares functions for implmenting a dictionary.
- *  * CSC 357, Assignment 3
- *   * Given code, Winter '24
- *    * NOTE: Do not alter this file. */
-
 /* Node: Represents one key-value pair. */
 typedef struct Node {
-    char *key;
+    int key;
     void *val;
     struct Node *next;
 } Node;
@@ -17,13 +12,14 @@ typedef struct Dict {
     int size;
 } Dict;
 
-Dict *dctcreate();
+Dict *revdctcreate();
+void revdctdestroy(Dict *);
+void *revdctget(Dict *, int);
+void revdctinsert(Dict *, int, void *);
+void *revdctremove(Dict *, char *);
+char **revdctkeys(Dict *);
+
 void insertAscii(Dict *);
-void dctdestroy(Dict *);
-void *dctget(Dict *, char *);
-void dctinsert(Dict *, char *, void *);
-void *dctremove(Dict *, char *);
-char **dctkeys(Dict *);
 void writecodes(int short[], FILE *);
 void encode(FILE *, FILE *);
 void decode(FILE *, FILE *);
