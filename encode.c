@@ -35,7 +35,6 @@ void encode(FILE *input, FILE *output) {
 			}
 			substr[0] = c;
 			substr[1] = '\0';
-			printf("substr is: %s\n", substr);
 		}
 	}
 	val = dctget(dct,substr);
