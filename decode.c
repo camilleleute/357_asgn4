@@ -82,8 +82,14 @@ void bitUnpacking(unsigned char codes[], short int newcodes[]) {
 
 
 void insertAsciiRev(Dict *dct) {
-    	int asciiCode;
-    	for (asciiCode = 0; asciiCode <= 127; asciiCode++) {
-        	revdctinsert(dct, asciiCode, (void*)asciiCode);
+    	char key[4];
+	char assostr[2];
+	char *strcopy;
+	for (unsigned int asciiCode = 0; asciiCode <= 127; asciiCode++) {
+        	sprintf(key, "%03x", asciiCode);
+		sprintf(assostr, "%c", (char)asciiCode);
+		strcopy = (char *)malloc((strlen(assostr) + 1) * sizeof(char));
+		strcpy(strcopy, assostr);
+		dctinsert(dct, key, (void *)strcopy);
     	}
 }

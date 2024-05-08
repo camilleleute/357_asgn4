@@ -21,7 +21,7 @@ dict.o: dict.c dict.h
 	gcc  -Wall -Wextra -std=gnu11 -pedantic -c dict.c
 
 debug:
-	gcc -Wall -Wextra -ansi -pedantic -g -o lzw lzw.c decode.c encode.c dict.c revdict.c
+	gcc -Wall -Wextra -std=gnu11 -pedantic -g -o lzw lzw.c decode.c encode.c dict.c revdict.c
 
 clean:
 	rm -f *.o

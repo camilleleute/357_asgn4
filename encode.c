@@ -11,7 +11,8 @@
 
 void encode(FILE *input, FILE *output) {
 	char substr[4096], prevsubstr[4096], c;
-	int short codes[2];
+	int short codes[2]={-1};
+	codes[1] = -1;
 	int j = 1, k=0;
 	void *prevval, *val;
 	Dict *dct = dctcreate();
@@ -23,7 +24,7 @@ void encode(FILE *input, FILE *output) {
 		substr[length] = c;
 		substr[length+1] = '\0';
 		val = dctget(dct, substr);
-   		if (val == NULL){
+		if (val == NULL){
 			val = (void *)(long)(ASCIIMAX + (j++));
 			dctinsert(dct, substr, (void*)(long)val);
 			prevval = dctget(dct, prevsubstr);
@@ -38,7 +39,7 @@ void encode(FILE *input, FILE *output) {
 		}
 	}
 	val = dctget(dct,substr);
-        
+       
         codes[k++%2] = (short)val;
 	if (codes[1] == -1) {
 		unsigned char byteA, byteB;
@@ -56,7 +57,7 @@ void encode(FILE *input, FILE *output) {
 void insertAscii(Dict *dict) {
     	int i;
 	for (i = 0; i < 128; i++) {
-   		char key[2];
+		char key[2];
 		sprintf(key, "%c", i); 
 		dctinsert(dict, key, (void*)(long)i);
         }
