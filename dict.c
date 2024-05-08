@@ -8,7 +8,6 @@
 #include <string.h>
 #define ASCII 0x7F
 
-int j = 0;
 
 void rehash(Dict *);
 /* dcthash: Hashes a string key.

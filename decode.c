@@ -13,6 +13,7 @@ void decode(FILE *input, FILE* output) {
 	Dict *dct = revdctcreate();
 	insertAsciiRev(dct);
 	void *ptr;
+	char dumbstr[2];
 	char codesubstr[4096], prevsubstr[4096];
 	unsigned char bytes[3] = {-1};	
 	short int codes[2];
@@ -30,12 +31,16 @@ void decode(FILE *input, FILE* output) {
 					//maybe handle fail fputs or EOF?
 				}
 				if (prevsubstr != NULL) {
-					strcat(prevsubstr, codesubstr[0]);
+					dumbstr[0] = codesubstr[0];
+					dumbstr[1] = '\0';
+					strcat(prevsubstr, dumbstr);
 					revdctinsert(dct, codes[i], (void *)prevsubstr);
 					strcpy(prevsubstr, codesubstr);  
 				}
 			} else {
-				strcat(prevsubstr, prevsubstr[0]); //i think this is wrong
+				dumbstr[0] = prevsubstr[0];
+                                        dumbstr[1] = '\0';
+				strcat(prevsubstr, dumbstr); //i think this is wrong
 				for (j = 0; prevsubstr[j] != '\0'; j++) {
                                 	fputc(prevsubstr[j], output);
                                 }
@@ -53,7 +58,9 @@ void decode(FILE *input, FILE* output) {
 		ptr = revdctget(dct, singlecode);
 		strcpy(codesubstr, (char *)ptr);
 		if (codesubstr == NULL) {
-			strcat(prevsubstr, prevsubstr[0]); //i think this is wrong
+			dumbstr[0] = prevsubstr[0];
+                        dumbstr[1] = '\0';
+			strcat(prevsubstr, dumbstr);//i think this is wrong
                         strcpy(codesubstr, prevsubstr);
 		}
 		for (j = 0; codesubstr[j] != '\0'; j++) {
@@ -61,7 +68,7 @@ void decode(FILE *input, FILE* output) {
                 }
 	}
 	printf("reaching dct destroy\n");
-	dctdestroy(dct);
+	revdctdestroy(dct);
 	return;	
 }
 
@@ -76,9 +83,7 @@ void bitUnpacking(unsigned char codes[], short int newcodes[]) {
 
 void insertAsciiRev(Dict *dct) {
     	int asciiCode;
-	char c;
     	for (asciiCode = 0; asciiCode <= 127; asciiCode++) {
-		char c = (char)asciiCode;
         	revdctinsert(dct, asciiCode, (void*)asciiCode);
     	}
 }

@@ -8,7 +8,6 @@
 #include <string.h>
 #define ASCII 0x7F
 
-int j = 0;
 
 void revrehash(Dict *);
 /* dcthash: Hashes a string key.
@@ -87,7 +86,7 @@ void revdctinsert(Dict *dct, int key, void *val) {
         //int loadFactor = 0;
         unsigned long int idx = 0;
         Node *curr, *node;
-        if (dct == NULL || key == NULL) {
+        if (dct == NULL || key == -1) {
                 return;
         }
         //loadFactor = (dct->size) / (dct -> cap);
