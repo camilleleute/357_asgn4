@@ -16,9 +16,8 @@ int main(int argc, char* argv[]) {
 		fclose(in);
 		exit(EXIT_FAILURE);
 	}
-		
+	fclose(in);	
 	if (strcmp(argv[1], "-c") == 0) {
-		fclose(in);
 		in = fopen(argv[2], "r");
 		out = fopen(argv[3], "wb");
 		encode(in, out);	
@@ -27,9 +26,8 @@ int main(int argc, char* argv[]) {
 	if (strcmp(argv[1], "-x") == 0) {
 		in = fopen(argv[2], "rb");
                 out = fopen(argv[3], "w");
-                //decode(in, out);
+                decode(in, out);
         }
-	printf("and closing\n");
 	fclose(in);
 	fclose(out);
 	return EXIT_SUCCESS;

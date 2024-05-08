@@ -1,4 +1,4 @@
-
+#include <stdio.h>
 /* Declares functions for implmenting a dictionary.
  *  * CSC 357, Assignment 3
  *   * Given code, Winter '24
@@ -27,3 +27,6 @@ void *dctremove(Dict *, char *);
 char **dctkeys(Dict *);
 void writecodes(int short[], FILE *);
 void encode(FILE *, FILE *);
+void decode(FILE *, FILE *);
+void bitUnpacking(unsigned char[], short int[]);
+void insertAsciiRev(Dict *);
