@@ -8,35 +8,41 @@
 
 
 void decode(FILE *input, FILE* output) {
-	char code[4];
+	char code[4], key[4];
 	int i, j;
+	int d = 1;
 	size_t elements_read;
-	Dict *dct = revdctcreate();
+	Dict *dct = dctcreate();
 	insertAsciiRev(dct);
 	void *ptr;
+	char* codesubstr;
 	char dumbstr[2];
-	char codesubstr[4096], prevsubstr[4096];
+	char prevsubstr[4096] = {'\0'};
 	unsigned char bytes[3] = {-1};	
 	short int codes[2];
 	while ((elements_read = fread(bytes ,1, 3, input)) == 3) {
 		bitUnpacking(bytes, codes);
 		for (i = 0; i < 2; i++) {
 			sprintf(code, "%03x", codes[i]); // int code now char
-		//	codesubstr = dctget(dct, code);
-			
-			//strcpy(codesubstr, dctget(dct, codes[i]));
-			printf("code is: %x; associated string is: %s\n", codes[i], codesubstr);	
+			ptr = dctget(dct, code);
+			char *str = (char *)ptr; // Cast void pointer to char pointer
+    			printf("%s\n", str); // Print the string
+			size_t length = strlen((char *)ptr);
+			codesubstr = (char *)malloc(length + 1);
+			strcpy(codesubstr, (char *)ptr);
+			printf("code read: %x; asso substr: %s\n", codes[i], codesubstr);
 			if (codesubstr != NULL) {
-				for (j = 0; codesubstr[j] != '\0'; j++) {
-					fputc(codesubstr[j], output);
-					//maybe handle fail fputs or EOF?
-				}
-				if (prevsubstr != NULL) {
+				fwrite(codesubstr, sizeof(char), length, output);
+			
+				if (prevsubstr[0] !='\0') {
 					dumbstr[0] = codesubstr[0];
 					dumbstr[1] = '\0';
 					strcat(prevsubstr, dumbstr);
-					revdctinsert(dct, codes[i], (void *)prevsubstr);
-					strcpy(prevsubstr, codesubstr);  
+					int valinsert = ASCIIMAX + (d++);
+					sprintf(key, "%03x", valinsert);
+					printf("insert %s with code %x\n", prevsubstr, valinsert);
+					dctinsert(dct, key, (void *)prevsubstr);
+					strcpy(prevsubstr, codesubstr); 
 				}
 			} else {
 				dumbstr[0] = prevsubstr[0];
@@ -48,8 +54,8 @@ void decode(FILE *input, FILE* output) {
 				dctinsert(dct, code, (void*)prevsubstr);
 				
 			}
-			
-				
+		strcpy(prevsubstr, codesubstr);	
+		free(codesubstr);		
 		}	
 	
 	}
@@ -93,4 +99,5 @@ void insertAsciiRev(Dict *dct) {
 		strcpy(strcopy, assostr);
 		dctinsert(dct, key, (void *)strcopy);
     	}
+	
 }
