@@ -3,11 +3,12 @@
 #include <string.h>
 #include <unistd.h>
 #include <fcntl.h>
-#include "revdict.h"
+#include "dict.h"
 #define ASCIIMAX 0x7F 
 
 
 void decode(FILE *input, FILE* output) {
+	char code[4];
 	int i, j;
 	size_t elements_read;
 	Dict *dct = revdctcreate();
@@ -17,12 +18,12 @@ void decode(FILE *input, FILE* output) {
 	char codesubstr[4096], prevsubstr[4096];
 	unsigned char bytes[3] = {-1};	
 	short int codes[2];
-	printf("hi/n");
 	while ((elements_read = fread(bytes ,1, 3, input)) == 3) {
 		bitUnpacking(bytes, codes);
 		for (i = 0; i < 2; i++) {
-			ptr = revdctget(dct, codes[i]);
-			strcpy(codesubstr, (char *)ptr);
+			sprintf(code, "%03x", codes[i]); // int code now char
+		//	codesubstr = dctget(dct, code);
+			
 			//strcpy(codesubstr, dctget(dct, codes[i]));
 			printf("code is: %x; associated string is: %s\n", codes[i], codesubstr);	
 			if (codesubstr != NULL) {
@@ -44,7 +45,7 @@ void decode(FILE *input, FILE* output) {
 				for (j = 0; prevsubstr[j] != '\0'; j++) {
                                 	fputc(prevsubstr[j], output);
                                 }
-				revdctinsert(dct, codes[i], (void*)prevsubstr);
+				dctinsert(dct, code, (void*)prevsubstr);
 				
 			}
 			

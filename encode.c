@@ -11,8 +11,7 @@
 
 void encode(FILE *input, FILE *output) {
 	char substr[4096], prevsubstr[4096], c;
-	int short codes[2]={-1};
-	codes[1] = -1;
+	int short codes[2]={-1, -1};
 	int j = 1, k=0;
 	void *prevval, *val;
 	Dict *dct = dctcreate();
