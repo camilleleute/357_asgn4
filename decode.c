@@ -46,9 +46,8 @@ void decode(FILE *input, FILE* output) {
 				dumbstr[0] = prevsubstr[0];
                                 dumbstr[1] = '\0';
 				sprintf(insertstr, "%s%s", prevsubstr, dumbstr);
-				for (j = 0; prevsubstr[j] != '\0'; j++) {
-                                	fputc(prevsubstr[j], output);
-                                }
+				length = strlen((char *) insertstr);
+				fwrite(insertstr, sizeof(char), length, output);
 				dctinsert(dct, code, (void*)insertstr);
 				strcpy(prevsubstr, insertstr);
 				continue;
