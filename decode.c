@@ -21,73 +21,85 @@ void decode(FILE *input, FILE* output) {
 	unsigned char bytes[3] = {-1};	
 	short int codes[2];
 	char prevsubstr[4096] = {'\0'};
-	//char** mallocedpointers[4096] = {NULL};
-	//size_t mallocindex = 0;
 	while ((elements_read = fread(bytes ,1, 3, input)) == 3) {
 		bitUnpacking(bytes, codes);
 		for (i = 0; i < 2; i++) {
-			sprintf(code, "%03x", codes[i]); // int code now char
+			sprintf(code, "%03x", codes[i]); 
 			ptr = dctget(dct, code);
-			//printf("direct: %s\n", (char *)ptr);
-			length = strlen((char *)ptr);
-			codesubstr = (char *)malloc(length + 1);
-			strcpy(codesubstr, (char *)ptr);
-			//printf("code read: %x; asso substr: %s\n", codes[i], codesubstr);
-			if (codesubstr != NULL) {
+			if (ptr != NULL) {
+				length = strlen((char *)ptr);
+                        	codesubstr = (char *)malloc(length + 1);
+                        	strcpy(codesubstr, (char *)ptr);
 				fwrite(codesubstr, sizeof(char), length, output);
-			
 				if (prevsubstr[0] !='\0') {
 					char * insertstr = (char *)malloc(4096 * (sizeof(char)));
-					//mallocedpointers[mallocindex] = insertstr;
-					//mallocindex++;
 					dumbstr[0] = codesubstr[0];
 					dumbstr[1] = '\0';
 					sprintf(insertstr, "%s%s", prevsubstr, dumbstr);
-					//strcat(insertstr, dumbstr);
 					int valinsert = ASCIIMAX + (d++);
 					sprintf(key, "%03x", valinsert);
-					//printf("insert %s with code %s\n", insertstr, key);
 					dctinsert(dct, key, (void *)insertstr);
 					strcpy(prevsubstr, codesubstr); 
 				}
 			} else {
+				char * insertstr = (char *)malloc(4096 * (sizeof(char)));
 				dumbstr[0] = prevsubstr[0];
                                 dumbstr[1] = '\0';
-				strcat(prevsubstr, dumbstr); //i think this is wrong
+				sprintf(insertstr, "%s%s", prevsubstr, dumbstr);
 				for (j = 0; prevsubstr[j] != '\0'; j++) {
                                 	fputc(prevsubstr[j], output);
                                 }
-				dctinsert(dct, code, (void*)prevsubstr);
-				
+				dctinsert(dct, code, (void*)insertstr);
+				strcpy(prevsubstr, insertstr);
+				continue;
 			}
 		strcpy(prevsubstr, codesubstr);	
 		free(codesubstr);		
 		}	
 	
 	}
-	if (elements_read == 2) {
+	if (elements_read != 0) {
 		short int singlecode;
-		singlecode = ((codes[0] << 4) | (codes[1] >> 4)) & 0xFFF;		
+		singlecode = ((bytes[0] << 4) | (bytes[1] >> 4)) & 0xFFF;		
 		sprintf(code, "%03x", singlecode); // int code now char
                 ptr = dctget(dct, code);
-                length = strlen((char *)ptr);
-                codesubstr = (char *)malloc(length + 1);
-                strcpy(codesubstr, (char *)ptr);
-		if (codesubstr == NULL) {
+		if (ptr == NULL) {
+			char * insertstr = (char *)malloc(4096 * (sizeof(char)));
 			dumbstr[0] = prevsubstr[0];
                         dumbstr[1] = '\0';
-			strcat(prevsubstr, dumbstr);
+			sprintf(insertstr, "%s%s", prevsubstr, dumbstr);
+			dctinsert(dct, code, (void*)insertstr);
                         strcpy(codesubstr, prevsubstr);
+		} else {
+			length = strlen((char *)ptr);
+                	codesubstr = (char *)malloc(length + 1);
+                	strcpy(codesubstr, (char *)ptr);
+			
+			if (prevsubstr[0] !='\0') {
+                        	char * insertstr = (char *)malloc(4096 * (sizeof(char)));
+                                dumbstr[0] = codesubstr[0];
+                                dumbstr[1] = '\0';
+                                sprintf(insertstr, "%s%s", prevsubstr, dumbstr);
+                                int valinsert = ASCIIMAX + (d++);
+                                sprintf(key, "%03x", valinsert);
+				free(dctget(dct, key));
+                                dctinsert(dct, key, (void *)insertstr);
+                           }
+					
 		}
 		for (j = 0; codesubstr[j] != '\0'; j++) {
                         fputc(codesubstr[j], output);
                 }
-	}
-	keys = dctkeys(dct);
-	for (int i = 0; i < dct ->size; i++) {
-		free(dctget(dct, &key[i]));
+		free(codesubstr);
 	}
 	
+	//printf("before dctkeys\n");
+	keys = dctkeys(dct);
+	//printf("bafter dctkeys\n");
+	for (int i = 0; i < dct ->size; i++) {
+		free(dctget(dct, keys[i]));
+	}
+	free(keys);
 	dctdestroy(dct);
 	return;	
 }

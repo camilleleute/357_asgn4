@@ -28,7 +28,7 @@ static unsigned long int dcthash(char *key) {
 Dict *dctcreate() {
 	Dict *dict; 
 	dict = (Dict *)malloc(sizeof(Dict));
-	dict->cap = 30;
+	dict->cap = 0xFFFFFF;
         dict->size = 0;
 	if (dict == NULL) {
 		free(dict);
@@ -192,12 +192,12 @@ char **dctkeys(Dict *dct) {
 	}
 	for (i=0; i<dct->cap; i++) {
 		Node *curr = dct->arr[i];
+		
 		while (curr != NULL) {
 			arr[k] = curr->key;
 			k++;
 			curr = curr ->next;		
 		}
 	}
-	/*arr[k] = NULL;*/
 	return arr;
 }
