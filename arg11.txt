@@ -1,2 +1,1 @@
--c in11.txt tmp.bin
-
+-x out2.bin newtmp.txt

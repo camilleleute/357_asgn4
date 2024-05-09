@@ -11,42 +11,48 @@ void decode(FILE *input, FILE* output) {
 	char code[4], key[4];
 	int i, j;
 	int d = 1;
-	size_t elements_read;
+	size_t elements_read, length;
 	Dict *dct = dctcreate();
 	insertAsciiRev(dct);
+	char ** keys = NULL;
 	void *ptr;
-	char* codesubstr;
+	char *codesubstr;
 	char dumbstr[2];
-	char prevsubstr[4096] = {'\0'};
 	unsigned char bytes[3] = {-1};	
 	short int codes[2];
+	char prevsubstr[4096] = {'\0'};
+	//char** mallocedpointers[4096] = {NULL};
+	//size_t mallocindex = 0;
 	while ((elements_read = fread(bytes ,1, 3, input)) == 3) {
 		bitUnpacking(bytes, codes);
 		for (i = 0; i < 2; i++) {
 			sprintf(code, "%03x", codes[i]); // int code now char
 			ptr = dctget(dct, code);
-			char *str = (char *)ptr; // Cast void pointer to char pointer
-    			printf("%s\n", str); // Print the string
-			size_t length = strlen((char *)ptr);
+			//printf("direct: %s\n", (char *)ptr);
+			length = strlen((char *)ptr);
 			codesubstr = (char *)malloc(length + 1);
 			strcpy(codesubstr, (char *)ptr);
-			printf("code read: %x; asso substr: %s\n", codes[i], codesubstr);
+			//printf("code read: %x; asso substr: %s\n", codes[i], codesubstr);
 			if (codesubstr != NULL) {
 				fwrite(codesubstr, sizeof(char), length, output);
 			
 				if (prevsubstr[0] !='\0') {
+					char * insertstr = (char *)malloc(4096 * (sizeof(char)));
+					//mallocedpointers[mallocindex] = insertstr;
+					//mallocindex++;
 					dumbstr[0] = codesubstr[0];
 					dumbstr[1] = '\0';
-					strcat(prevsubstr, dumbstr);
+					sprintf(insertstr, "%s%s", prevsubstr, dumbstr);
+					//strcat(insertstr, dumbstr);
 					int valinsert = ASCIIMAX + (d++);
 					sprintf(key, "%03x", valinsert);
-					printf("insert %s with code %x\n", prevsubstr, valinsert);
-					dctinsert(dct, key, (void *)prevsubstr);
+					//printf("insert %s with code %s\n", insertstr, key);
+					dctinsert(dct, key, (void *)insertstr);
 					strcpy(prevsubstr, codesubstr); 
 				}
 			} else {
 				dumbstr[0] = prevsubstr[0];
-                                        dumbstr[1] = '\0';
+                                dumbstr[1] = '\0';
 				strcat(prevsubstr, dumbstr); //i think this is wrong
 				for (j = 0; prevsubstr[j] != '\0'; j++) {
                                 	fputc(prevsubstr[j], output);
@@ -62,20 +68,27 @@ void decode(FILE *input, FILE* output) {
 	if (elements_read == 2) {
 		short int singlecode;
 		singlecode = ((codes[0] << 4) | (codes[1] >> 4)) & 0xFFF;		
-		ptr = revdctget(dct, singlecode);
-		strcpy(codesubstr, (char *)ptr);
+		sprintf(code, "%03x", singlecode); // int code now char
+                ptr = dctget(dct, code);
+                length = strlen((char *)ptr);
+                codesubstr = (char *)malloc(length + 1);
+                strcpy(codesubstr, (char *)ptr);
 		if (codesubstr == NULL) {
 			dumbstr[0] = prevsubstr[0];
                         dumbstr[1] = '\0';
-			strcat(prevsubstr, dumbstr);//i think this is wrong
+			strcat(prevsubstr, dumbstr);
                         strcpy(codesubstr, prevsubstr);
 		}
 		for (j = 0; codesubstr[j] != '\0'; j++) {
                         fputc(codesubstr[j], output);
                 }
 	}
-	printf("reaching dct destroy\n");
-	revdctdestroy(dct);
+	keys = dctkeys(dct);
+	for (int i = 0; i < dct ->size; i++) {
+		free(dctget(dct, &key[i]));
+	}
+	
+	dctdestroy(dct);
 	return;	
 }
 
@@ -99,5 +112,4 @@ void insertAsciiRev(Dict *dct) {
 		strcpy(strcopy, assostr);
 		dctinsert(dct, key, (void *)strcopy);
     	}
-	
 }

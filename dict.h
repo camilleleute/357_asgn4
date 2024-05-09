@@ -1,3 +1,5 @@
+#ifndef dict_h
+#define dict_h
 /* Declares functions for implmenting a dictionary.
  *  * CSC 357, Assignment 3
  *   * Given code, Winter '24
@@ -29,3 +31,4 @@ void encode(FILE *, FILE *);
 void decode(FILE *, FILE *);
 void bitUnpacking(unsigned char[], short int[]);
 void insertAsciiRev(Dict *);
+#endif /*dict_h*/
