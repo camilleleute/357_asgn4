@@ -28,7 +28,7 @@ static unsigned long int dcthash(char *key) {
 Dict *dctcreate() {
 	Dict *dict; 
 	dict = (Dict *)malloc(sizeof(Dict));
-	dict->cap = 0xFFFFFF;
+	dict->cap = 30;
         dict->size = 0;
 	if (dict == NULL) {
 		free(dict);
