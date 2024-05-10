@@ -47,6 +47,7 @@ void decode(FILE *input, FILE* output) {
                                 dumbstr[1] = '\0';
 				sprintf(insertstr, "%s%s", prevsubstr, dumbstr);
 				length = strlen((char *) insertstr);
+				d++;
 				fwrite(insertstr, sizeof(char), length, output);
 				dctinsert(dct, code, (void*)insertstr);
 				strcpy(prevsubstr, insertstr);
@@ -82,7 +83,7 @@ void decode(FILE *input, FILE* output) {
                                 int valinsert = ASCIIMAX + (d++);
                                 sprintf(key, "%03x", valinsert);
 				free(dctget(dct, key));
-                                dctinsert(dct, key, (void *)insertstr);
+				dctinsert(dct, key, (void *)insertstr);
                            }
 					
 		}
